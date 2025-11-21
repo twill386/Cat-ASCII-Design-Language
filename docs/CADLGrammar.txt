@@ -1,0 +1,50 @@
+CADL Grammar
+
+# program : {CAT,ID,FUNC,DRAW,RANDOMCAT,RETURN,IF,WHILE,LCURLY} stmt_list
+
+# stmt_list : (stmt)*
+
+# stmt : {CAT} CAT ID cat_suffix
+#      | {FUNC} FUNC ID func_suffix
+#      | {DRAW} DRAW ID SEMI
+#      | {RANDOMCAT} RANDOMCAT ID SEMI
+#      | {ID} ID id_suffix
+#      | {RETURN} RETURN exp SEMI
+#      | {IF} IF LPAREN exp RPAREN stmt ({ELSE} ELSE stmt)?
+#      | {WHILE} WHILE LPAREN exp RPAREN stmt
+#      | {LCURLY} LCURLY stmt_list RCURLY
+
+# cat_suffix : {LCURLY} LCURLY trait_list RCURLY
+#            | {SEMI} SEMI
+
+# func_suffix : {LPAREN} LPAREN params RPAREN LCURLY stmt_list RCURLY
+
+# id_suffix : {DOT} DOT ID ASSIGN exp SEMI
+#           | {ASSIGN} ASSIGN RANDOMCAT SEMI
+#           | {LPAREN} LPAREN args RPAREN SEMI
+#           | {ASSIGN} ASSIGN exp SEMI
+
+# trait_list : (trait)+
+
+# trait : {ID} ID ASSIGN exp SEMI
+
+# params : {ID} ID (COMMA ID)*
+#        | /* empty */
+
+# args : {ID,NUMBER,STRING,LPAREN,NOT} exp (COMMA exp)*
+#      | /* empty */
+
+# exp : {ID,NUMBER,STRING,LPAREN,NOT} equality
+
+# equality : {ID,NUMBER,STRING,LPAREN,NOT} primary
+#          ((EQ primary) | (NOTEQ primary))*
+
+# primary : {ID} ID primary_suffix
+#         | {NUMBER} NUMBER
+#         | {STRING} STRING
+#         | {LPAREN} LPAREN exp RPAREN
+#         | {NOT} NOT primary
+
+# primary_suffix : {DOT} DOT ID
+#                | {LPAREN} LPAREN args RPAREN
+#                | /* empty */
