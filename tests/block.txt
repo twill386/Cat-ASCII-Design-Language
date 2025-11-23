@@ -1,0 +1,5 @@
+cat Miso {
+    mood = happy;
+}
+
+draw Miso;
