@@ -1,0 +1,13 @@
+cat Sleepy  { mood = "sleepy"; }
+cat Happy   { mood = "happy"; }
+cat Angry   { mood = "angry"; }
+cat Loving  { mood = "loving"; }
+cat Curious { mood = "curious"; }
+cat Excited { mood = "excited"; }
+
+draw Sleepy;
+draw Happy;
+draw Angry;
+draw Loving;
+draw Curious;
+draw Excited;

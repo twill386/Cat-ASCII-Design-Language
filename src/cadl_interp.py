@@ -33,7 +33,7 @@ def interp(input_stream, dump=False, exceptions=False):
 
         # Interpret (execute CADL program)
         walker = CADLInterpWalk()
-        walker.visitProgram(ast)
+        walker.visit(ast)
 
     except Exception as e:
         if exceptions:
@@ -50,25 +50,40 @@ if __name__ == "__main__":
 
     ast_switch = False
     except_switch = False
-    char_stream = ""
 
-    if len(sys.argv) == 1:  # no args - read stdin
-        char_stream = sys.stdin.read()
-    else:
-        # Read switches if present
-        args = sys.argv[1:-1]       # everything except last arg
-        input_file = sys.argv[-1]   # last arg always file name
+    # CASE 1: FILE PROVIDED, run normally
+    ########################################################
+    if len(sys.argv) > 1:
+        args = sys.argv[1:-1]      # all except last
+        input_file = sys.argv[-1]  # last argument
 
         ast_switch = "-d" in args
         except_switch = "-e" in args
 
-        # Load file contents
         if not os.path.isfile(input_file):
-            print("unknown file {}".format(input_file))
+            print(f"unknown file {input_file}")
             sys.exit(0)
 
         with open(input_file, "r") as f:
             char_stream = f.read()
 
-    # Run interpreter
-    interp(char_stream, dump=ast_switch, exceptions=except_switch)
+        interp(char_stream, dump=ast_switch, exceptions=except_switch)
+        sys.exit(0)
+
+    # CASE 2: NO FILE PROVIDED, INTERACTIVE MODE
+    ########################################################
+    print("CADL Interactive Mode (type 'exit' to quit)")
+    walker = CADLInterpWalk()
+    symtab.initialize()
+
+    while True:
+        try:
+            line = input("CADL> ")
+            if line.strip().lower() in ["exit", "quit"]:
+                break
+
+            ast = parse(line)
+            walker.visit(ast)
+
+        except Exception as e:
+            print("error:", e)

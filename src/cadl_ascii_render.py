@@ -10,18 +10,19 @@ def ears_fragment(ears: str) -> str:
     ears = (ears or "pointy").lower()
 
     if ears == "pointy":
-        return " /\\   /\\ "
+        return " /\\ /\\ "
     if ears == "droopy":
-        return " /\\_ /\\_ "
+        return " /\\_/\\_"
     if ears == "round":
         return " (o   o) "
     if ears == "long":
-        return "/\\     /\\"
+        return "/\\   /\\"
     if ears == "short":
-        return " /\\_/\\  "
+        return " ^   ^ "
 
     # fallback
-    return " /\\   /\\ "
+    return " /\\ /\\ "
+
 
 # Mood & Mouth (Cat's Expression)
 ####################################################################
@@ -40,7 +41,7 @@ def eyes_for_mood(mood: str) -> str:
         return "o.o"
     if mood == "angry":
         return "¬.¬"
-    return "o.o"   # default expression
+    return "o.o"   # default
 
 
 def mouth_char(mouth: str) -> str:
@@ -63,26 +64,28 @@ def core_face(mood: str, mouth: str) -> str:
     # replace middle eye char with mouth char
     return eyes[0] + m + eyes[2]
 
+
 # Whiskers
 ####################################################################
-def whiskers(whiskers: str):
-    whiskers = (whiskers or "long").lower()
+def whiskers(whiskers_val: str):
+    whiskers_val = (whiskers_val or "long").lower()
 
-    if whiskers == "long":
+    if whiskers_val == "long":
         return "=", "="
-    if whiskers == "short":
+    if whiskers_val == "short":
         return "-", "-"
-    if whiskers == "curled":
+    if whiskers_val == "curled":
         return "~", "~"
 
     return "-", "-"  # fallback
 
-# Body, Face boundary shape
+
+# BODY = Face boundary shape
 ####################################################################
-# normal = ( face )
-# smooth = | face |
-# fluffy = { face }
-# chubby = (  face  ) (one extra space)
+# normal  = ( face )
+# smooth  = | face |
+# fluffy  = { face }
+# chubby  = (  face  ) (one extra space)
 ####################################################################
 def wrap_face(body: str, face: str) -> str:
     body = (body or "normal").lower()
@@ -99,7 +102,7 @@ def wrap_face(body: str, face: str) -> str:
     return f"( {face} )"
 
 
-# Tail (bottom line, right aligned, none will hide it)
+# Tail (bottom line, right aligned, "none" will hide it)
 ####################################################################
 def tail_fragment(tail: str):
     if tail is None:
@@ -112,12 +115,13 @@ def tail_fragment(tail: str):
     if tail == "fluffy":
         return "~~>"
     if tail == "curled":
-        return "~~"
+        return "~~)"
     if tail == "straight":
         return "-->"
 
     # default
     return "-->"
+
 
 # Main Function for the renderer
 ####################################################################
@@ -147,30 +151,31 @@ def render_cat(cat: Dict[str, Any]) -> str:
     mouth = traits.get("mouth")
     body = traits.get("body")
     tail = traits.get("tail")
-    whiskers = traits.get("whiskers")
+    whiskers_val = traits.get("whiskers")
     mood = traits.get("mood")
 
-    #### Build head pieces ####
+    # ---- Build head pieces (no global padding yet) ----
 
     ears_raw = ears_fragment(ears)
 
     core = core_face(mood, mouth)
     wrapped_face = wrap_face(body, core)
 
-    left_w, right_w = whiskers(whiskers)
+    left_w, right_w = whiskers(whiskers_val)
     prefix = f"{left_w} "
     suffix = f" {right_w}"
 
     face_line_raw = prefix + wrapped_face + suffix  # full head line with whiskers
     head_width = len(face_line_raw)
 
-    #### Place ears centered over face structure (wrapped) ####
+    # ---- Place ears centered over face structure (wrapped_face) ----
 
     face_start = len(prefix)
     face_len = len(wrapped_face)
     ears_len = len(ears_raw)
 
     # center ears over the face structure within the head width
+    # derived from: 2*ear_start = 2*face_start + face_len - ears_len
     ear_start = (2 * face_start + face_len - ears_len) // 2
     if ear_start < 0:
         ear_start = 0
@@ -179,9 +184,9 @@ def render_cat(cat: Dict[str, Any]) -> str:
     if len(ears_line_head) < head_width:
         ears_line_head = ears_line_head.ljust(head_width)
 
-    #### Tail line ####
+    # ---- Tail line ----
 
-    tail_frag = tail_fragment(tail)  
+    tail_frag = tail_fragment(tail)  # FIXED: no function shadowing
     if tail_frag is None:
         tail_line_raw = None
         total_width = head_width
@@ -189,9 +194,9 @@ def render_cat(cat: Dict[str, Any]) -> str:
         tail_line_raw = tail_frag
         total_width = max(head_width, len(tail_line_raw))
 
-    #### Final padding to total width ####
+    # ---- Final padding to total width ----
 
-    # Center head (ears + face)
+    # Center head (ears + face) within total_width
     head_pad = (total_width - head_width) // 2
     final_ears = (" " * head_pad) + ears_line_head
     final_ears = final_ears.ljust(total_width)

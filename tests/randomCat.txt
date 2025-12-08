@@ -1,0 +1,2 @@
+randomcat GreenBean;
+draw GreenBean;

@@ -196,8 +196,8 @@ def trait(stream):
 # This Returns:
 #   ('TRAITASSIGN_RHS', ('ID', traitName), expr)
 #   ('ASSIGN_RANDOMCAT_RHS',)
-#   ('LIST', [...])          
-#   <expr>         
+#   ('LIST', [...])
+#   <expr>
 def id_suffix(stream):
     t = stream.pointer().type
 
@@ -342,9 +342,9 @@ def actual_args(stream):
 
 # frontend top-level driver
 def parse(stream):
-    from cadl_lexer import Lexer      # call cadle_lexer
+    from cadl_lexer import Lexer
     token_stream = Lexer(stream)
-    sl = stmt_list(token_stream)      # call the parser function for start symbol
+    sl = stmt_list(token_stream)
     if not token_stream.end_of_file():
         raise SyntaxError("parse: syntax error at {}"
                           .format(token_stream.pointer().value))
@@ -353,7 +353,17 @@ def parse(stream):
 
 
 if __name__ == "__main__":
-    from sys import stdin
-    from dumpast import dumpast
-    char_stream = stdin.read()  # read from stdin
-    dumpast(parse(char_stream))
+    import sys
+    from cadl_interp_walk import CADLInterpWalk
+
+    if len(sys.argv) < 2:
+        print("Usage: python3 cadl_fe.py <sourcefile>")
+        sys.exit(1)
+
+    filename = sys.argv[1]
+    with open(filename, "r") as f:
+        source = f.read()
+
+    ast = parse(source)
+    interp = CADLInterpWalk()
+    interp.visit(ast)

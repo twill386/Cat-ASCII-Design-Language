@@ -13,12 +13,13 @@ from cadl_symtab import symtab
 import random
 from cadl_ascii_render import render_cat
 
+
 class CADLInterpWalk:
 
     def __init__(self):
         self.return_flag = False
         self.return_value = None
-    
+
     # Mood Override
     ####################################################################
     def apply_mood_override(self, cat):
@@ -31,7 +32,7 @@ class CADLInterpWalk:
         mood = traits.get("mood")
 
         if mood is None:
-            return cat  # no mood, no override
+            return cat
 
         mood = mood.lower()
 
@@ -39,241 +40,290 @@ class CADLInterpWalk:
             traits["ears"] = "droopy"
             traits["mouth"] = "neutral"
             traits["whiskers"] = "short"
+
         elif mood == "happy":
             traits["mouth"] = "smile"
             traits["ears"] = "pointy"
             traits["whiskers"] = "long"
+
         elif mood == "angry":
             traits["mouth"] = "frown"
-            traits["ears"] = "short"   
+            traits["ears"] = "short"
             traits["whiskers"] = "curled"
+
         elif mood == "loving":
             traits["mouth"] = "smile"
             traits["ears"] = "round"
             traits["whiskers"] = "long"
+
         elif mood == "curious":
             traits["ears"] = "pointy"
             traits["mouth"] = "neutral"
             traits["whiskers"] = "long"
+
         elif mood == "excited":
             traits["mouth"] = "open"
             traits["ears"] = "long"
             traits["whiskers"] = "long"
 
         return cat
-    
-    # Program & Statement List
-    ####################################################################
-    def visitProgram(self, node):
-        return self.visit(node.stmt_list)
 
-    def visitStmtList(self, node):
-        for stmt in node.stmts:
-            self.visit(stmt)
-            if self.return_flag:
-                break
-    
-    # Cat Declarations
-    ####################################################################
-    def visitCatDecl(self, node):
-        """
-        cat Miso { ears = pointy; mood = sleepy; }
-        """
-        traits = {}
+    # Tuple AST Interpreter (used by cadl_fe.py)
+    ###############################################################
+    def visitTuple(self, node):
+        tag = node[0]
 
-        for trait in node.traits:
-            name = trait.name
-            value = self.visit(trait.expr)
-            traits[name] = value
-
-        cat_obj = {
-            "type": "cat",
-            "traits": traits
-        }
-
-        symtab.declare(node.id, cat_obj)
-    
-    # Draw
-    ####################################################################
-    def visitDraw(self, node):
-        """
-        draw Miso;
-        """
-        cat = symtab.lookup(node.id)
-        cat = self.apply_mood_override(cat)
-
-        art = render_cat(cat)     # generate ASCII
-        print(art)                # output ASCII
-
-    # RANDOMCAT
-    ####################################################################
-    def visitRandomCat(self, node):
-        """
-        ID = randomcat;
-        Randomly chooses between:
-        - random traits
-        - random mood
-        """
-
-        # Randomly choose between the 2 options
-        choose_mood_mode = random.choice([True, False])
-
-        # CADL trait options (CADLTraits.txt)
-        all_traits = {
-            "ears": ["pointy", "droopy", "round", "long", "short"],
-            "mouth": ["smile", "frown", "neutral", "open", "smirk"],
-            "body": ["smooth", "fluffy", "normal", "chubby"],
-            "tail": ["none", "fluffy", "straight", "curled"],  
-            "whiskers": ["long", "short", "curled"],
-            "mood": ["happy", "sleepy", "excited", "loving", "curious", "angry"]
-        }
-
-        # Random traits
-        if not choose_mood_mode:
-
-            traits = {}
-            for t, options in all_traits.items():
-                if t == "mood":  
-                    continue  # ignore mood for this mode
-                traits[t] = random.choice(options)
-
-            cat_obj = {
-                "type": "cat",
-                "traits": traits
-            }
-
-            symtab.update(node.id, cat_obj)
+        # STMTLIST
+        if tag == "STMTLIST":
+            for s in node[1]:
+                self.visit(s)
+                if self.return_flag:
+                    break
             return
 
-        # Random mood
-        mood = random.choice(all_traits["mood"])
+        # NIL
+        if tag == "NIL":
+            return None
 
-        # start with only mood
-        traits = {"mood": mood}
+        # CATDECL: define cat with traits
+        if tag == "CATDECL":
+            _, id_node, traits_list = node
+            _, name = id_node
+            traits = {}
 
-        # cat object
-        cat_obj = {"type": "cat", "traits": traits}
+            for trait_node in traits_list[1]:
+                # ('TRAIT', ('ID', tname), expr)
+                _, (_, tname), expr = trait_node
 
-        # override for mood-controlled traits
-        cat_obj = self.apply_mood_override(cat_obj)
+                # prevent unquoted values
+                if isinstance(expr, tuple) and expr[0] == "ID":
+                    bad = expr[1]
+                    raise ValueError(
+                        f"Trait value '{bad}' must be quoted.\n"
+                        f"Example: {tname} = \"{bad}\";"
+                    )
 
-        # fill in unaffected traits randomly
-        for t, options in all_traits.items():
-            if t not in cat_obj["traits"]:
-                cat_obj["traits"][t] = random.choice(options)
+                traits[tname] = self.visit(expr)
 
-        symtab.update(node.id, cat_obj)
+            cat_obj = {"type": "cat", "traits": traits}
+            symtab.declare(name, cat_obj)
+            return
 
-    # Trait Assignment (ID.trait = expr)
+        # CATDECL_SIMPLE
+        if tag == "CATDECL_SIMPLE":
+            _, id_node = node
+            _, name = id_node
+            symtab.declare(name, {"type": "cat", "traits": {}})
+            return
+
+        # DRAW
+        if tag == "DRAW":
+            _, id_node = node
+            _, name = id_node
+            cat = symtab.lookup(name)
+            cat = self.apply_mood_override(cat)
+            print(render_cat(cat))
+            return
+
+        # RANDOMCATDECL / ASSIGN_RANDOMCAT
+        if tag in ("RANDOMCATDECL", "ASSIGN_RANDOMCAT"):
+            _, id_node = node
+            _, name = id_node
+            declare = (tag == "RANDOMCATDECL")
+
+            choose_mood_mode = random.choice([True, False])
+
+            all_traits = {
+                "ears": ["pointy", "droopy", "round", "long", "short"],
+                "mouth": ["smile", "frown", "neutral", "open", "smirk"],
+                "body": ["smooth", "fluffy", "normal", "chubby"],
+                "tail": ["none", "fluffy", "straight", "curled"],
+                "whiskers": ["long", "short", "curled"],
+                "mood": ["happy", "sleepy", "excited", "loving", "curious", "angry"],
+            }
+
+            # Mode 1: No mood, all random traits
+            if not choose_mood_mode:
+                traits = {}
+                for t, options in all_traits.items():
+                    if t == "mood":
+                        continue
+                    traits[t] = random.choice(options)
+                cat_obj = {"type": "cat", "traits": traits}
+
+            # Mode 2: Random mood, override, then fill remaining traits
+            else:
+                mood = random.choice(all_traits["mood"])
+                traits = {"mood": mood}
+                cat_obj = {"type": "cat", "traits": traits}
+                cat_obj = self.apply_mood_override(cat_obj)
+
+                for t, options in all_traits.items():
+                    if t not in traits:
+                        traits[t] = random.choice(options)
+
+            if declare:
+                symtab.declare(name, cat_obj)
+            else:
+                symtab.update(name, cat_obj)
+            return
+
+        # TRAITASSIGN
+        if tag == "TRAITASSIGN":
+            _, id_node, trait_node, expr = node
+            _, catname = id_node
+            _, traitname = trait_node
+
+            if isinstance(expr, tuple) and expr[0] == "ID":
+                bad = expr[1]
+                raise ValueError(
+                    f"Trait value '{bad}' must be quoted.\n"
+                    f"Example: {traitname} = \"{bad}\";"
+                )
+
+            value = self.visit(expr)
+            cat = symtab.lookup(catname)
+            cat["traits"][traitname] = value
+
+            if traitname == "mood":
+                self.apply_mood_override(cat)
+
+            symtab.update(catname, cat)
+            return
+
+        # ASSIGN (non-cat variable assignment)
+        if tag == "ASSIGN":
+            _, id_node, expr = node
+            _, name = id_node
+
+            if isinstance(expr, tuple) and expr[0] == "ID":
+                bad = expr[1]
+                raise ValueError(
+                    f"Value '{bad}' must be quoted.\n"
+                    f"Example: {name} = \"{bad}\";"
+                )
+
+            value = self.visit(expr)
+            symtab.update(name, value)
+            return
+
+        # RETURN
+        if tag == "RETURN":
+            _, expr = node
+            self.return_value = None if expr[0] == "NIL" else self.visit(expr)
+            self.return_flag = True
+            return
+
+        # WHILE
+        if tag == "WHILE":
+            _, expr, stmt = node
+            while self.visit(expr):
+                self.visit(stmt)
+                if self.return_flag:
+                    break
+            return
+
+        # IF
+        if tag == "IF":
+            _, expr, then_stmt, else_stmt = node
+            if self.visit(expr):
+                self.visit(then_stmt)
+            elif isinstance(else_stmt, tuple) and else_stmt[0] != "NIL":
+                self.visit(else_stmt)
+            return
+
+        # BLOCK
+        if tag == "BLOCK":
+            _, sl = node
+            self.visit(sl)
+            return
+
+        # FUNDECL
+        if tag == "FUNDECL":
+            _, id_node, params_list, body = node
+            _, name = id_node
+            symtab.declare(name, node)
+            return
+
+        # CALLSTMT
+        if tag == "CALLSTMT":
+            _, id_node, args_list = node
+            _, name = id_node
+            _ = self._call_function_by_name(name, args_list)
+            return
+
+        # CALLEXP
+        if tag == "CALLEXP":
+            _, id_node, args_list = node
+            _, name = id_node
+            return self._call_function_by_name(name, args_list)
+
+        # Literals & expressions
+        if tag == "INTEGER":
+            return node[1]
+
+        if tag == "STRING":
+            s = node[1]
+            # Strip matching single or double quotes
+            if (s.startswith('"') and s.endswith('"')) or (s.startswith("'") and s.endswith("'")):
+                return s[1:-1]
+            return s
+
+        if tag == "ID":
+            return symtab.lookup(node[1])
+
+        if tag == "ATTR":
+            _, id_node, trait_node = node
+            _, catname = id_node
+            _, traitname = trait_node
+            return symtab.lookup(catname)["traits"][traitname]
+
+        if tag == "NOT":
+            _, expr = node
+            return not self.visit(expr)
+
+        if tag in ("EQ", "NOTEQ"):
+            _, left, right = node
+            lval = self.visit(left)
+            rval = self.visit(right)
+            return (lval == rval) if tag == "EQ" else (lval != rval)
+
+        raise RuntimeError(f"Unhandled tuple node tag: {tag}")
+
+    # Function Call Helper
     ####################################################################
-    def visitTraitAssign(self, node):
-        """
-        Miso.ears = pointy;
-        """
-        cat = symtab.lookup(node.id)
-        value = self.visit(node.expr)
+    def _call_function_by_name(self, name, args_list):
+        func = symtab.lookup(name)
+        if not isinstance(func, tuple) or func[0] != "FUNDECL":
+            raise RuntimeError(f"{name} is not a function")
 
-        cat["traits"][node.trait] = value
+        _, _, params_list, body = func
 
-        # If mood changed, apply override
-        if node.trait == "mood":
-            self.apply_mood_override(cat)
+        if args_list[0] == "LIST":
+            arg_values = [self.visit(a) for a in args_list[1]]
+        else:
+            arg_values = []
 
-        symtab.update(node.id, cat)
+        param_names = [p[1] for p in params_list[1]]
 
-    # Simple Assignment (ID = expr)
-    ####################################################################
-    def visitAssign(self, node):
-        value = self.visit(node.expr)
-        symtab.update(node.id, value)
-
-    # Function Declaration
-    ####################################################################
-    def visitFuncDecl(self, node):
-        symtab.declare(node.id, node)
-
-    # Function Call
-    ####################################################################
-    def visitFuncCall(self, node):
-        func = symtab.lookup(node.id)
-
-        # Push new scope
         symtab.push_scope()
 
-        # Bind parameters
-        for param, arg in zip(func.params, node.args):
-            symtab.declare(param, self.visit(arg))
+        for pname, value in zip(param_names, arg_values):
+            symtab.declare(pname, value)
 
-        # Execute function
         self.return_flag = False
-        self.visit(func.stmts)
+        self.return_value = None
 
-        retval = self.return_value
+        self.visit(body)
 
-        # Pop scope
+        result = self.return_value
         symtab.pop_scope()
+        return result
 
-        return retval
-
-    # Return
-    ####################################################################
-    def visitReturn(self, node):
-        self.return_flag = True
-        self.return_value = self.visit(node.expr)
-
-    # If and While
-    ####################################################################
-    def visitIf(self, node):
-        cond = self.visit(node.expr)
-        if cond:
-            self.visit(node.then_stmt)
-        elif node.else_stmt:
-            self.visit(node.else_stmt)
-
-    def visitWhile(self, node):
-        while self.visit(node.expr):
-            self.visit(node.stmt)
-
-    # Expressions
-    ####################################################################
-    def visitBinaryOp(self, node):
-        left = self.visit(node.left)
-        right = self.visit(node.right)
-        op = node.op
-
-        if op == "==":
-            return left == right
-        elif op == "!=":
-            return left != right
-
-        raise RuntimeError("Unknown binary operator: " + op)
-
-    # Primary (ID, NUMBER, STRING, (expr), !expr)
-    ####################################################################
-    def visitIdentifier(self, node):
-        """
-        Handles ID or ID.trait access.
-        """
-        val = symtab.lookup(node.id)
-
-        # Dot-access case: Miso.ears
-        if hasattr(node, "trait") and node.trait is not None:
-            return val["traits"][node.trait]
-
-        return val
-
-    def visitNumber(self, node):
-        return node.value
-
-    def visitString(self, node):
-        return node.value
-
-    def visitNot(self, node):
-        return not self.visit(node.expr)
-
-    # Visit
+    # Main Dispatcher
     ####################################################################
     def visit(self, node):
-        method_name = "visit" + node.__class__.__name__
-        method = getattr(self, method_name)
-        return method(node)
+        if isinstance(node, tuple):
+            return self.visitTuple(node)
+
+        raise RuntimeError("Unknown node type passed to interpreter")

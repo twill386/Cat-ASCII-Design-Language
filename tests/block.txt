@@ -1,5 +1,5 @@
 cat Miso {
-    mood = happy;
+    mood = "happy";
 }
 
 draw Miso;
