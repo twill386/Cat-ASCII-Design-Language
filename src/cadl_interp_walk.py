@@ -332,6 +332,8 @@ class CADLInterpWalk:
         self.visit(body)
 
         result = self.return_value
+        self.return_flag = False    # clear return state after the call
+        self.return_value = None
         symtab.pop_scope()
         return result
 

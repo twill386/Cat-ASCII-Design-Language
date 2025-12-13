@@ -1,0 +1,18 @@
+func toggleMood(m) {
+    if (m == "happy") {
+        return "curious";
+    } else {
+        return "happy";
+    }
+}
+
+cat Luna {
+    ears = "pointy";
+    mood = "happy";
+}
+
+draw Luna;                         // happy
+Luna.mood = toggleMood(Luna.mood); // -> curious
+draw Luna;
+Luna.mood = toggleMood(Luna.mood); // -> back to happy
+draw Luna;
