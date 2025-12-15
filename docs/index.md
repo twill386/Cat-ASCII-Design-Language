@@ -1,4 +1,3 @@
-# CADL – Cat ASCII Description Language
 
 CSC402 Programming Language Implementation Project  
 **Author:** Thomas Williams
