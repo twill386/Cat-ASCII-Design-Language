@@ -1,19 +1,22 @@
+
+<!-- CADL Webpage -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CSC402 Programming Language Implementation Project</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>CADL Project</title> 
+  <link rel="stylesheet" href="styles.css"> <!-- Link to the Cascade Style Sheet -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pyodide.js"></script> <!-- Import Pyodide -->
 </head>
-<body>
+<body> <!-- Body content of CADL Webpage -->
   <main>
-    <h2>CSC402 Programming Language Implementation Project</h2>
+    <h2>CADL, a programming language implementation project</h2>
     <p><strong>Author:</strong> Thomas Williams</p>
 
     <hr>
-
-    <h2>Overview</h2>
+    <!-- Overview of CADL -->
+    <h3>Overview</h3>
     <p>CADL (Cat ASCII Description Language) is a domain-specific programming language designed to describe cats using traits such as mood, ears, tail, and body type, and render them as ASCII art.</p>
     <p>This project demonstrates a full programming language pipeline:</p>
     <ul>
@@ -25,13 +28,25 @@
     </ul>
 
     <hr>
-
-    <h2>Example CADL Program</h2>
+    <!-- CADL Example Program -->
+    <h3>Example of a CADL Program</h3>
     <pre><code class="language-cpp">cat Miso {
     mood = "sleepy";
     ears = "pointy";
     }
 draw Miso;</code></pre>
+
+    <hr>
+
+    <h3>Try CADL</h3>
+    <div id= "py-panel">
+      <button id="py-load-btn">Load CADL</button>
+      <button id="py-run-btn">Run Sample Program</button>
+      <div id="py-status">Idle</div>
+      <pre id="py-output"></pre>
+    </div>
+
   </main>
+  <script type="module" src="pyodide-loader.js"></script>
 </body>
 </html>
