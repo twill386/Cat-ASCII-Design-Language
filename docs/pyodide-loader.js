@@ -9,14 +9,6 @@ const PY_FILES = [
   { name: "cadl_lexer.py", url: "https://raw.githubusercontent.com/twill386/Cat-ASCII-Design-Language/main/src/cadl_lexer.py" },
 ];
 
-const SAMPLE_PROGRAM = `
-cat Miso {
-    mood = "sleepy";
-    ears = "pointy";
-}
-draw Miso;
-`;
-
 let pyodide;
 const ui = {
   status: document.getElementById("py-status"),
@@ -24,6 +16,11 @@ const ui = {
   runBtn: document.getElementById("py-run-btn"),
   output: document.getElementById("py-output"),
 };
+
+function getSampleProgram() {
+  const el = document.getElementById("cadl-sample");
+  return (el?.textContent || "").trim();
+}
 
 async function loadCadl() {
   ui.status.textContent = "Loading Pyodide…";
@@ -44,22 +41,27 @@ cadl_interp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cadl_interp)
 sys.modules["cadl_interp"] = cadl_interp
 `);
-  ui.status.textContent = "Loaded. Ready.";
+  ui.status.textContent = "CADL is Ready.";
 }
 
 async function runCadlSample() {
   if (!pyodide) return;
+  const source = getSampleProgram();
+  if (!source) {
+    ui.status.textContent = "No sample source found.";
+    return;
+  }
   ui.status.textContent = "Running sample…";
   const result = await pyodide.runPythonAsync(`
 import io, contextlib, cadl_interp
-source = """${SAMPLE_PROGRAM}"""
+source = ${JSON.stringify(source)}
 buf = io.StringIO()
 with contextlib.redirect_stdout(buf):
     cadl_interp.interp(source, exceptions=True)
 buf.getvalue()
 `);
   ui.output.textContent = (result && result.trim()) ? result : "Ran sample (no output).";
-  ui.status.textContent = "Sample finished.";
+  ui.status.textContent = "Executed.";
 }
 
 ui.loadBtn?.addEventListener("click", () => loadCadl().catch(handleError));

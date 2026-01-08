@@ -1,3 +1,77 @@
+
 body{
     font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding-top: 100px;
+    background: #f7f7f7;
+    background-image: url("cadlBackground.jpeg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.topTitle{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    padding: 10px 50px 8px 24px;
+    box-sizing: border-box;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.title-container{
+    max-width: 920px;
+    margin: 0 auto;
+}
+
+.topTitle h1{
+    text-align: center;
+    margin: 0 0 2px 0;
+    font-size: 28px;
+}
+
+.topMeta{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
+    font-weight: 600;
+}
+
+.github-btn{
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e0e0e0;
+    border: 1px solid #b5b5b5;
+    border-radius: 4px;
+    color: #000;
+    text-decoration: none;
+    font-weight: 300;
+}
+
+.github-btn:hover{
+    background: #d6d6d6;
+}
+
+.topNavBar{
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background-color: #282A35;
+    height: 40px;
+    z-index: 90;
+}
+
+.pageContent{
+    margin: 0 auto 60px auto;
+    padding: 24px 32px 32px 32px;
+    width: min(70%, 960px);
+    border: 1px solid #333;
+    background: #ffffff;
+    box-sizing: border-box;
 }

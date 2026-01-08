@@ -11,41 +11,52 @@
 </head>
 <body> <!-- Body content of CADL Webpage -->
   <main>
-    <h2>CADL, a programming language implementation project</h2>
-    <p><strong>Author:</strong> Thomas Williams</p>
-
-    <hr>
-    <!-- Overview of CADL -->
-    <h3>Overview</h3>
-    <p>CADL (Cat ASCII Description Language) is a domain-specific programming language designed to describe cats using traits such as mood, ears, tail, and body type, and render them as ASCII art.</p>
-    <p>This project demonstrates a full programming language pipeline:</p>
-    <ul>
-      <li>Lexer</li>
-      <li>Parser</li>
-      <li>Abstract Syntax Tree</li>
-      <li>Interpreter</li>
-      <li>ASCII Renderer</li>
-    </ul>
-
-    <hr>
-    <!-- CADL Example Program -->
-    <h3>Example of a CADL Program</h3>
-    <pre><code class="language-cpp">cat Miso {
-    mood = "sleepy";
-    ears = "pointy";
-    }
-draw Miso;</code></pre>
-
-    <hr>
-
-    <h3>Try CADL</h3>
-    <div id= "py-panel">
-      <button id="py-load-btn">Load CADL</button>
-      <button id="py-run-btn">Run Sample Program</button>
-      <div id="py-status">Idle</div>
-      <pre id="py-output"></pre>
+    <div class="topTitle">
+      <div class="title-container">
+        <h1>Cat ASCII Design Language</h1>
+        <div class="topMeta">
+          <span class="author">Created by: Thomas Williams</span>
+          <a class="github-btn" href="https://github.com/twill386/Cat-ASCII-Design-Language" target="_blank" rel="noopener noreferrer">View On GitHub</a>
+        </div>
+      </div>
     </div>
+    <div class="topNavBar">
 
+    </div>
+    <div class="pageContent"> 
+      <!-- Overview of CADL -->
+      <div>
+        <h3>Overview</h3>
+        <p>CADL (Cat ASCII Description Language) is a domain-specific programming language designed to describe cats using traits such as mood, ears, tail, and body type, and render them as ASCII art.</p>
+        <p>This project demonstrates a full programming language pipeline by using a:</p>
+        <ul>
+          <li>Lexer</li>
+          <li>Parser</li>
+          <li>Abstract Syntax Tree</li>
+          <li>Interpreter</li>
+          <li>ASCII Renderer</li>
+        </ul>
+      </div>
+      <hr>
+      <!-- CADL Example Program -->
+      <div>
+        <h3>Example CADL Program</h3>
+        <div id="cadl-demo">
+          <pre id="cadl-sample" aria-label="Sample CADL program"><code class="language-cpp">cat Miso {
+        mood = "sleepy";
+        ears = "pointy";
+    }
+    draw Miso;</code></pre>
+          <p>This example shows a complete, valid CADL program that can be parsed and executed by the CADL interpreter. It demonstrates the basic structure of the language, including defining a cat, assigning traits, and producing ASCII output through the CADL execution pipeline. Running this program shows how a simple set of instructions is transformed into a visual cat representation. Try running this example program yourself to see the ASCII representation of Miso!</p>
+          <div id="py-panel">
+            <button id="py-load-btn">Load CADL</button>
+            <button id="py-run-btn">Run Example</button>
+            <div id="py-status">Idle</div>
+            <pre id="py-output" aria-live="polite"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
   <script type="module" src="pyodide-loader.js"></script>
 </body>
