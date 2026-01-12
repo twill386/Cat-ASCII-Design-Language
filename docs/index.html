@@ -27,27 +27,53 @@
       <!-- Overview of CADL -->
       <div>
         <h3>Overview</h3>
-        <p>CADL (Cat ASCII Description Language) is a domain-specific programming language designed to describe cats using traits such as mood, ears, tail, and body type, and render them as ASCII art.</p>
-        <p>This project demonstrates a full programming language pipeline by using a:</p>
+        <p>CADL (Cat ASCII Description Language) is a domain-specific programming language designed to describe cats using structured traits—such as mood, ears, body type, tail, and whiskers—and render those descriptions as ASCII art.</p>
+        <p>Unlike general-purpose languages that focus on numerical computation or data processing, CADL is purpose-built for visual description. Programs written in CADL define cat objects, assign and modify their traits, and control when and how those cats are drawn.</p>
+      </div>
+      <hr>
+      <!-- Motivation & Design Goals -->
+      <div>
+        <h3> Motivation & Design Goals</h3>
+        <p>The goal of CADL is to demonstrate how a full programming language implementation pipeline can be adapted to a playful, domain-specific application. While the language itself is intentionally creative and lightweight, the underlying system mirrors the structure of a real interpreted language.</p>
+        <p>CADL was desgined to:</p>
         <ul>
-          <li>Lexer</li>
-          <li>Parser</li>
-          <li>Abstract Syntax Tree</li>
-          <li>Interpreter</li>
-          <li>ASCII Renderer</li>
+          <li>Demonstrate core language implementation concepts inlcuding a: lexer, parser, AST constructer, interpreter</li>
+          <li>Explore how domain-specific abstractions simplify user intent</li>
+          <li>Separate language semantics from rendering logic</li>
+          <li>Provide immediate, visual feedback from program execution</li>
         </ul>
       </div>
       <hr>
-      <!-- CADL Example Program -->
+      <!-- How CADL Works (Pipeline Overview) -->
+       <div>
+        <h3>How CADL Works</h3>
+        <p>Internally, CADL follows the same execution pipline used by traditional interpreted programming languages:</p>
+        <ol>
+          <li><b>Lexing</b> - Source code is tokenized into keywords, identifiers, literal, and operators.</li>
+          <li><b>Parsing</b> - Tokens are parsed according to the CADL grammar to produce an abstract syntax tree (AST).</li>
+          <li><b>AST Construction</b> - The hierarchical structure of the program is represented explicitly in node form.</li>
+          <li><b>Interpretation</b> - The interpreter travereses the AST, evaluates expressions, manages control flow, and updates the program state.</li>
+          <li><b>ASCII Rendering</b> - When a draw statement is encountered, the current state of a cat is passed to the renderer to generate ASCII output.</li>
+        </ol>
+       </div>
+       <hr>
+       <!-- Symbol table & Runtime Model -->
+        <div>
+          <h3>Symbol Table & Runtime Model</h3>
+          <p>CADL uses a scoped symbol table to manage variables, functions, and cat objects at runtime. Cat objects are stored as dictionaries of traits, allowing them to be shared across scopes while still supporting local state within functions.</p>
+          <p>Function calls introduce new scopes, which are pushed onto the symbol table and popped upon return. This allows CADL to support parameter passing, local variables, and controlled side effects while still operating on shared cat data.</p>
+        </div>
+        <hr>
+      <!-- Example Program -->
       <div>
-        <h3>Example CADL Program</h3>
+        <h3>Example Program</h3>
+        <p>The following example demonstrates a complete, valid CADL program. It defines a cat named Miso, assigns a mood and ear type, and then renders the cat as ASCII art. Running this program shows how a small set of declarative instructions is transformed into a visual representation through the CADL execution pipeline. Try running this example program yourself to see the ASCII representation of Miso!</p>
         <div id="cadl-demo">
           <pre id="cadl-sample" aria-label="Sample CADL program"><code class="language-cpp">cat Miso {
         mood = "sleepy";
         ears = "pointy";
     }
     draw Miso;</code></pre>
-          <p>This example shows a complete, valid CADL program that can be parsed and executed by the CADL interpreter. It demonstrates the basic structure of the language, including defining a cat, assigning traits, and producing ASCII output through the CADL execution pipeline. Running this program shows how a simple set of instructions is transformed into a visual cat representation. Try running this example program yourself to see the ASCII representation of Miso!</p>
           <div id="py-panel">
             <button id="py-load-btn">Load CADL</button>
             <button id="py-run-btn">Run Example</button>
@@ -56,6 +82,19 @@
           </div>
         </div>
       </div>
+      <hr>
+      <!-- Where to go next -->
+      <div>
+        <h3>Where to Go Next</h3>
+        <p>Want to explore more about CADL? Check out these other sections:</p>
+        <ul>
+          <li>Visit <b>Try it Yourself</b> to write and run your own CADL programs</li>
+          <li>Explore <b>Examples</b> to see how traits, moods, and control flow interact</li>
+          <li>Read the <b>Documentation</b> to learn the full grammar and available traits</li>
+          <li>View the source code on GitHub to see the full implemntation</li>
+        </ul>
+      </div>
+
     </div>
   </main>
   <script type="module" src="pyodide-loader.js"></script>
