@@ -1,5 +1,5 @@
 
-<!-- CADL Webpage -->
+<!-- CADL Home Webpage -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,14 +22,21 @@
       </div>
     </div>
     <!-- Top Nav bar -->
-    <div class="topNavBar">
-
+    <div>
+      <nav class="topNavBar">
+        <ul class="nav-list">
+          <li><a href="index.html">About</a></li>
+          <li><a href="play.html">Editor</a></li>
+          <li><a href="examples.html">Examples</a></li>
+          <li><a href="documentation.html">Documentation</a></li>
+        </ul>
+      </nav>
     </div>
     <!-- Page Content -->
     <div class="pageContent"> 
       <!-- Overview of CADL -->
       <div>
-        <h3>Overview</h3>
+        <h3>About</h3>
         <p>CADL (Cat ASCII Description Language) is a domain-specific programming language designed to describe cats using structured traits—such as mood, ears, body type, tail, and whiskers—and render those descriptions as ASCII art.</p>
         <p>Unlike general-purpose languages that focus on numerical computation or data processing, CADL is purpose-built for visual description. Programs written in CADL define cat objects, assign and modify their traits, and control when and how those cats are drawn.</p>
       </div>
@@ -90,14 +97,13 @@
       <div>
         <h3>Where to Go Next</h3>
         <p>Want to explore more about CADL? Check out these other sections:</p>
-        <ul>
-          <li>Visit <b>Try it Yourself</b> to write and run your own CADL programs</li>
-          <li>Explore <b>Examples</b> to see how traits, moods, and control flow interact</li>
-          <li>Read the <b>Documentation</b> to learn the full grammar and available traits</li>
+        <ul class="content">
+          <li>Visit <a href="play.html"><b>Editor</b></a> to write and run your own CADL programs</li>
+          <li>Explore <a href="Examples.html"><b>Examples</b></a> to see how traits, moods, and control flow interact</li>
+          <li>Read the <a href="documentation.html"><b>Documentation</b></a> to learn the full grammar and available traits</li>
           <li>View the source code on GitHub to see the full implemntation</li>
         </ul>
       </div>
-
     </div>
   </main>
   <script type="module" src="pyodide-loader.js"></script>
