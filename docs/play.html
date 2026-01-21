@@ -33,11 +33,29 @@
     </div>
     <!-- Page Content -->
     <div class="pageContent">
-        <!-- Editor -->
+        <!-- Try CADL Out Yourself -->
         <div>
-            <h3>Editor</h3>
+            <p>Write a CADL program below and run it to see your cat rendered as ASCII art. Be sure to follow proper CADL syntax and structure. There's no setup required - just type and click run!</p>
+        </div>
+        <hr>
+
+        <!-- CADL Interface -->
+        <div id="cadl-demo" class="cadl-ide">
+          <label for="cadl-input" class="cadl-ide-label">CADL IDE</label>
+          <textarea id="cadl-input" class="cadl-input" spellcheck="false">cat Miso {
+    mood = "sleepy";
+    ears = "pointy";
+    }
+draw Miso;</textarea>
+          <div id="py-panel">
+            <button id="py-load-btn">Load CADL</button>
+            <button id="py-run-btn">Run Example</button>
+            <div id="py-status">Idle</div>
+            <pre id="py-output" aria-live="polite"></pre>
+          </div>
         </div>
     </div>
    </main>
+   <script type="module" src="pyodide-loader.js"></script>
 </body>
 </html>

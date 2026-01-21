@@ -110,3 +110,83 @@ body{
 .content li a:hover{
     color: purple;
 }
+
+.cadl-ide{
+    background: #f3f5f8;
+    border: 1px solid #c7cdd6;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.cadl-ide-label{
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #2b3440;
+    margin-bottom: 10px;
+}
+
+.cadl-input{
+    width: 100%;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 320px;
+    resize: vertical;
+    white-space: pre;
+    border: 1px solid #b6bec8;
+    border-radius: 8px;
+    background: #f9fbff;
+    color: #1e293b;
+    padding: 14px 16px;
+    box-sizing: border-box;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.cadl-input:focus{
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.cadl-ide #py-panel{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.cadl-ide #py-panel button{
+    border: 1px solid #6b7280;
+    background: #e5e7eb;
+    color: #111827;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cadl-ide #py-panel button:hover{
+    background: #d8dde6;
+}
+
+.cadl-ide #py-status{
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.cadl-ide #py-output{
+    width: 100%;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #1e293b;
+    margin: 0;
+    min-height: 120px;
+    box-sizing: border-box;
+}

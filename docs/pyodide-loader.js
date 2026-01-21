@@ -17,9 +17,117 @@ const ui = {
   output: document.getElementById("py-output"),
 };
 
-function getSampleProgram() {
-  const el = document.getElementById("cadl-sample");
-  return (el?.textContent || "").trim();
+function enhanceCadlInput() {
+  const el = document.getElementById("cadl-input");
+  if (!el) return;
+
+  const pairs = {
+    "{": "}",
+    "(": ")",
+    "[": "]",
+    "\"": "\"",
+    "'": "'",
+  };
+
+  el.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const { selectionStart, selectionEnd, value } = el;
+      const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
+      const lineEndIndex = value.indexOf("\n", selectionEnd);
+      const lineEnd = lineEndIndex === -1 ? value.length : lineEndIndex;
+      const lines = value.slice(lineStart, lineEnd).split("\n");
+
+      if (e.shiftKey) {
+        let removed = 0;
+        const newText = lines
+          .map((line) => {
+            if (line.startsWith("  ")) {
+              removed += 2;
+              return line.slice(2);
+            }
+            if (line.startsWith("\t")) {
+              removed += 1;
+              return line.slice(1);
+            }
+            return line;
+          })
+          .join("\n");
+        el.value = value.slice(0, lineStart) + newText + value.slice(lineEnd);
+        el.selectionStart = Math.max(selectionStart - 2, lineStart);
+        el.selectionEnd = Math.max(selectionEnd - removed, lineStart);
+      } else if (selectionStart !== selectionEnd) {
+        const newText = lines.map((line) => "  " + line).join("\n");
+        el.value = value.slice(0, lineStart) + newText + value.slice(lineEnd);
+        el.selectionStart = selectionStart + 2;
+        el.selectionEnd = selectionEnd + 2 * lines.length;
+      } else {
+        const insert = "  ";
+        el.value = value.slice(0, selectionStart) + insert + value.slice(selectionEnd);
+        el.selectionStart = el.selectionEnd = selectionStart + insert.length;
+      }
+      return;
+    }
+
+    if (e.key === "Enter") {
+      const { selectionStart, selectionEnd, value } = el;
+      const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
+      const line = value.slice(lineStart, selectionStart);
+      const baseIndent = (line.match(/^\s+/) || [""])[0];
+      const trimmedLine = line.trimEnd();
+      const indentUnit = "  ";
+      let newIndent = baseIndent;
+      if (trimmedLine.trimStart().startsWith("}")) {
+        if (newIndent.startsWith(indentUnit)) {
+          newIndent = newIndent.slice(indentUnit.length);
+        } else if (newIndent.startsWith("\t")) {
+          newIndent = newIndent.slice(1);
+        }
+      }
+      const extraIndent = trimmedLine.endsWith("{") ? indentUnit : "";
+      const insert = "\n" + newIndent + extraIndent;
+      if (insert !== "\n") {
+        e.preventDefault();
+        el.value = value.slice(0, selectionStart) + insert + value.slice(selectionEnd);
+        el.selectionStart = el.selectionEnd = selectionStart + insert.length;
+      }
+      return;
+    }
+
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && pairs[e.key]) {
+      e.preventDefault();
+      const { selectionStart, selectionEnd, value } = el;
+      const open = e.key;
+      const close = pairs[open];
+      if (selectionStart !== selectionEnd) {
+        const selected = value.slice(selectionStart, selectionEnd);
+        el.value =
+          value.slice(0, selectionStart) +
+          open +
+          selected +
+          close +
+          value.slice(selectionEnd);
+        el.selectionStart = selectionStart + 1;
+        el.selectionEnd = selectionEnd + 1;
+      } else {
+        el.value =
+          value.slice(0, selectionStart) +
+          open +
+          close +
+          value.slice(selectionEnd);
+        el.selectionStart = el.selectionEnd = selectionStart + 1;
+      }
+    }
+  });
+}
+
+function getProgramSource() {
+  const inputEl = document.getElementById("cadl-input");
+  if (inputEl && "value" in inputEl) {
+    return (inputEl.value || "").trim();
+  }
+  const sampleEl = document.getElementById("cadl-sample");
+  return (sampleEl?.textContent || "").trim();
 }
 
 async function loadCadl() {
@@ -46,7 +154,7 @@ sys.modules["cadl_interp"] = cadl_interp
 
 async function runCadlSample() {
   if (!pyodide) return;
-  const source = getSampleProgram();
+  const source = getProgramSource();
   if (!source) {
     ui.status.textContent = "No sample source found.";
     return;
@@ -66,6 +174,7 @@ buf.getvalue()
 
 ui.loadBtn?.addEventListener("click", () => loadCadl().catch(handleError));
 ui.runBtn?.addEventListener("click", () => runCadlSample().catch(handleError));
+enhanceCadlInput();
 
 function handleError(err) {
   console.error(err);
